@@ -37,30 +37,33 @@ quantity_data = products_df.groupby(['order_date', 'product_id'])['quantity'].su
 pivot_data = quantity_data.pivot(index='order_date', columns='product_id', values='quantity').fillna(0)
 
 def check_underselling_products(product_id):
-    data_series = pivot_data[product_id]
-
-    # Determine Best ARIMA Order
-    auto_model = auto_arima(data_series, seasonal=False, trace=True, error_action='ignore', suppress_warnings=True, stepwise=True)
-
-    # Fit ARIMA Model
-    model = ARIMA(data_series, order=auto_model.order)
-    model_fit = model.fit()
-
-    # Forecast Future Values
-    forecast_days = 10  # Adjust as needed
-    forecast = model_fit.forecast(steps=forecast_days)
-
-    # Calculate current amount and amount after 10 days
-    current_amount = data_series.iloc[-1]  # Latest available amount (quantity sold)
-    amount_after_10_days = forecast.iloc[-1]  # Forecasted amount after 10 days
-
-    # Calculate the difference
-    difference = amount_after_10_days - current_amount
-
-    if (difference > 0):
+    try:
+        data_series = pivot_data[product_id]
+    
+        # Determine Best ARIMA Order
+        auto_model = auto_arima(data_series, seasonal=False, trace=True, error_action='ignore', suppress_warnings=True, stepwise=True)
+    
+        # Fit ARIMA Model
+        model = ARIMA(data_series, order=auto_model.order)
+        model_fit = model.fit()
+    
+        # Forecast Future Values
+        forecast_days = 10  # Adjust as needed
+        forecast = model_fit.forecast(steps=forecast_days)
+    
+        # Calculate current amount and amount after 10 days
+        current_amount = data_series.iloc[-1]  # Latest available amount (quantity sold)
+        amount_after_10_days = forecast.iloc[-1]  # Forecasted amount after 10 days
+    
+        # Calculate the difference
+        difference = amount_after_10_days - current_amount
+    
+        if (difference > 0):
+            return False
+        else :
+            return True
+    except:
         return False
-    else :
-        return True
 
 def text2vector(text):
     model_id = "sentence-transformers/all-MiniLM-L6-v2"
