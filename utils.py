@@ -16,7 +16,7 @@ from sendgrid.helpers.mail import Mail
 load_dotenv()
 
 pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
-pinecone_index = pc.Index(host=os.getenv("PINECONE_INDEX_NAME"))
+pinecone_index = pc.Index(os.getenv("PINECONE_INDEX_NAME"))
 
 data = pd.read_json('Orders.json')
 
